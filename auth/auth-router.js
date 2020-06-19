@@ -26,9 +26,12 @@ router.post("/login", (req, res) => {
         // compare the password the hash stored in the database
         console.log("USERRRR", user);
         if (user && bcrypt.compareSync(password, user.password)) {
-          // req.session.user = user; -- session not wokring
           const token = createToken(user);
-          res.status(200).json({ token, message: `Welcome ${user.username}` });
+          req.session.user = user;
+          res.status(200).json({ message: `Welcome ${user.username}.. Welcome to my server.. Here is a token that we made with JWT`,
+           token,
+           session: req.session, });
+           
         } else {
           res.status(401).json({ message: "Invalid credentials" });
         }
@@ -43,7 +46,6 @@ router.post("/login", (req, res) => {
     });
   }
 });
-
 //////////////////////////////////////////////////WORKING
 function createToken(user){
   const payload = {
@@ -59,6 +61,7 @@ function createToken(user){
 }
 
 /////////////////////////
+
 router.delete('/logout', (req,res) => {
     if (req.session){
         console.log("this is the session log",req.session)
