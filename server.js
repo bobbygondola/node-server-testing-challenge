@@ -15,24 +15,24 @@ const facultyRouter = require('./faculty/faculty-router');
 server.use("/api/auth", authRouter);
 server.use("/api/faculty", requiresAuth, facultyRouter);
 
-const session = require('express-session');
-const KnexSessionStore = require('connect-session-knex')(session)
+const session = require("express-session");
+// const KnexSessionStore = require("connect-session-knex")(session);
 const sessionConfig = {
-    name: 'The Name of The Session',
-    secret: "secret",
-    cookie: {
-        maxAge: 1000 * 60 * 10 * 10,
-        secure: false,
-        httpOnly: true,
-    },
-    resave: false,
-    saveUnitialized: true,
-    store: new KnexSessionStore({
-        knex: dbConnection,
-        createTable: true,
-        clearInterval: 1000 * 60 * 60 * 24
-    })
-}
+  name: "Monkey",
+  secret: "secret",
+  cookie: {
+    maxAge: 1000 * 60 * 10 * 60,
+    secure: false,
+    httpOnly: true,
+  },
+  resave: false,
+  saveUninitialized: true,
+//   store: new KnexSessionStore({
+//     knex: dbConnection,
+//     createtable: true,
+//     clearInterval: 1000 * 60 * 60 * 24, // one day
+//   }),
+};
 server.use(session(sessionConfig))
 
 

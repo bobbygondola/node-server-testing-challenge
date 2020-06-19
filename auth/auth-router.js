@@ -3,6 +3,7 @@ const db = require("../faculty/faculty-helpers");
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
+//////////////////////////////////////////////////WORKING
 router.post('/register', (req,res) => {
     const { username, password, department } = req.body;
     //hash
@@ -16,50 +17,46 @@ router.post('/register', (req,res) => {
 })
 
 
-//////////////////////////////////////////////////
-router.post('/login', (req, res) => {
-  let { username, password } = req.body;
-
-  db.findBy({ username })
-    .first()
-    .then(([user]) => {
-      if (user && bcrypt.compareSync(password, user.password)) {
-        const token = generateToken(user); // new line
- 
-        // the server needs to return the token to the client
-        // this doesn't happen automatically like it happens with cookies
-        res.status(200).json({
-          message: `Welcome ${user.username}!, have a token...`,
-          token, // attach the token as part of the response
-        });
-      } else {
-        res.status(401).json({ message: 'Invalid Credentials' });
-      }
-    })
-    .catch(error => {
-      res.status(500).json(error);
+//////////////////////////////////////////////////WORKING
+router.post("/login", (req, res) => {
+  const { username, password } = req.body;
+  if (req.body) {
+    db.findBy({ username: username })
+      .then(([user]) => {
+        // compare the password the hash stored in the database
+        console.log("USERRRR", user);
+        if (user && bcrypt.compareSync(password, user.password)) {
+          // req.session.user = user; -- session not wokring
+          const token = createToken(user);
+          res.status(200).json({ token, message: `Welcome ${user.username}` });
+        } else {
+          res.status(401).json({ message: "Invalid credentials" });
+        }
+      })
+      .catch((error) => {
+        res.status(500).json({ message: error.message });
+      });
+  } else {
+    res.status(400).json({
+      message:
+        "please provide username and password and the password shoud be alphanumeric",
     });
+  }
 });
 
-function generateToken(user) {
+//////////////////////////////////////////////////WORKING
+function createToken(user){
   const payload = {
-    subject: user.id, // sub in payload is what the token is about
+    subject: user.id,
     username: user.username,
-    // ...otherData
+    department: user.department
   };
-
-  const secret = {
-      secret: "secret"
-  };
-
+  const secret = process.env.JWT_SECRET || 'secret baby'
   const options = {
-    expiresIn: '1d', // show other available options in the library's documentation
-  };
-
-  // extract the secret away so it can be required and used where needed
-  return jwt.sign(payload, secret, options); // this method is synchronous
+    expiresIn: '1d',
+  }
+  return jwt.sign(payload, secret, options)
 }
-
 
 /////////////////////////
 router.delete('/logout', (req,res) => {
